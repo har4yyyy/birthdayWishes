@@ -1,5 +1,6 @@
 # birthdayWishes
-Interactive birthday webpage with music, popup wishes, and animated fireworks and shooting stars effects.
+Interactive birthday webpage with music, pop-up wishes, and animated fireworks and shooting stars effects.
+Feel free to share this with your friends 🎂
 
 ## Features
 
