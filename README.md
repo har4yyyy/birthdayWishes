@@ -5,7 +5,7 @@ Feel free to share this with your friends 🎂
 ## Features
 
 - 🎵 Background music playback (MP3)  
-- 💌 Randomized popup lyrics and birthday wishes  
+- 💌 Randomized pop-up lyrics and birthday wishes  
 - 🎆 Click-triggered fireworks and shooting stars animations  
 - 🖱️ Responsive mouse click interactions for interactive effects  
 - 🌌 Full-screen, visually immersive experience  
