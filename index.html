@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>For You ♥</title>
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+    user-select: none;
+}
+.popup {
+    position: absolute;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    font-size: 14px;
+    color: #380b19;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 0 12px rgba(138, 117, 119, 0.7);
+    max-width: 220px;
+    height: auto;
+    word-wrap: break-word;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.8s, transform 0.8s;
+}
+.popup.show { opacity: 1; transform: scale(1); }
+
+#cakeBtn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+    animation: cakeGlow 3s ease-in-out infinite;
+}
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+@keyframes cakeGlow {
+    0% { filter: drop-shadow(0 0 8px #ff9bb5); }
+    50% { filter: drop-shadow(0 0 20px #ffbfd2); }
+    100% { filter: drop-shadow(0 0 8px #ff9bb5); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="fireworks"></canvas>
+<button id="cakeBtn"><img src="birthdayCake.png" width="200"></button>
+<audio id="bgm" src="hbd.mp3"></audio>
+
+<script>
+const lyrics = [
+"我可以离去别在哭泣，不要伤心请你相信我，要等待我的爱，陪你永不离开 —— JJ《会有那么一天》",
+"冻结那时间，冻结初遇那一天，冻结那爱恋，冻结吻你那瞬间 —— JJ《冻结》",
+"错与对竟然也凑在一堆，我细胞己崩溃，谁大声的哀叹，谁会在乎要如何收场，你偏偏此刻出现，把我抽离蛮荒的世界 —— JJ《高滚星空下的吻》",
+"我的呼吸我的叹息，我的话都为你说，我的努力我的放弃，我每步都为你走，在你梦想的边缘，总有一个人一直为你为你守候着它，我所有的我没有的，我一切都是你的，我得到的我失去的，我拥有的都是你的，你也许无法了解，我给的爱己经超乎我以为我能够给的 —— JJ《星球》",
+"我要宣布爱你的人就是我，对没有错就是要，简简单单爱就是我，你爱我，不需要啰嗦 —— JJ《就是我》",
+"风到这里就是粘，粘住过客的思念，雨到了这里缠成线，缠着我们流连人世间，你在身边就是缘，缘分写在三生石上面，爱有万分之一甜，宁愿我就葬在这一点 —— JJ《江南》",
+"不懂爱恨情仇煎熬的我们，都以为相爱就像风云的善变，相信爱一天，抵过永远，在这一刹那冻结了时间，不懂怎么表现温柔的我们，还以为殉情只是古老的传言，离愁能有多痛，痛有多浓，当梦被埋在江南烟雨中，心碎了才懂 —— JJ《江南》",
+"只要你在我身边，所有蜚语流言完全视而不见，请不要匆匆一面一转身就沉入海平线，传说中你为爱甘心被搁浅，我也可以为你潜入海里面，怎么忍心断绝，忘记我不变的誓言，我眼泪断了线，现实里有了我对你的眷恋，我愿意化作雕像，等你出现，再见再也不见，心碎了飘荡在海边，你抬头就看见传说中你为爱甘心被搁浅 —— JJ《美人鱼》",
+"让爱，轻悄悄的，追来的不露痕迹，化成一件外衣，披上眼前的你，我思念到了底，就一直逗留在你心里 —— JJ《精灵》",
+"你需要我的傻笑，我需要你的拥抱，爱情就需要这样，它才不会单调，我知道有时候也需要吵吵闹闹，但始终也知道只有你对我最好 —— JJ《豆浆油条》",
+"收拾我所有的行李，搭乘末班希望班机，和信心一起旅行，这次要学习不逃避，挥别我所有的恐惧，勇敢地走下去，幸福在这一瞬间，幸福就在这一瞬间，我会牢记，感谢有你，一路有你，爱让一切变得更美丽 —— JJ《信心旅途》",
+"我唱响世界，所有你爱听的歌，直到我沙了哑了，也不觉口渴，世界有太多悲剧太多伤心了，我拥有你的掌声，就能很快乐 —— JJ《唱响世界》",
+"从前的懵懂可笑，未来的没人知道，等待拥抱还是寻找，要咆哮还是祷告，只有我最清楚我的需要，不用指教，我是我自己生命中的主角，让梦想在我胸中燃烧 —— JJ《由你选择》",
+"抢手的玫瑰，总有一天会枯萎，会否没人追，怀念当初有我陪，她的泪太虚伪，让我飞，让我追，抢一颗心碎，抢到所有人伤痕累累 —— JJ《抢玫瑰》",
+"永远相信爱永不会绝迹，谁能抹去那些古老传奇，我们手握紧，勇气和信心就能够无敌，渴望每个明天，决不放弃，努力燃烧，用不完的活力，幻想的正义，解开了奥秘，心跳永不暂停 —— JJ《爱不会绝迹》",
+"我一直都想对你说，你给我想不到的快乐，像绿洲给了沙漠 —— 陶喆《就是爱你》",
+"su san，在那命运月台前面，再上车春天开始落叶 —— 陶喆《Susan说》",
+"波浪像他们碎裂的心，快相遇又分离，一句一句，在月光下叹息 —— 陶喆《Angeline》",
+"我感激你对我这样的坦白，但我给你的爱暂时收不回来，所以我不能只是 be your friend —— 陶喆《普通朋友》",
+"还记得一年前站在火车站，看着自己的悲剧演完，透过玻璃窗看见你的泪满面，那车头依然吐着烟 —— 陶喆《小镇姑娘》"
+];
+
+const wishes = [
+"生日快乐！愿你笑口常开，幸福永远！",
+"希望你下学期在 upenn 过的开心",
+"祝你天天开心，梦想成真！",
+"愿你拥有无限的爱与快乐！",
+"生日快乐！愿每一天都像今天一样精彩！",
+"final 顺利通过，GPA 翻倍！",
+"愿你心想事成，青春常驻！",
+"祝你早日找到女朋友哈哈哈哈",
+"祝你健康平安，快乐无边！",
+"愿你的人生充满美好与惊喜！",
+"实习 offer 来来来",
+"Happy Birthday！愿你闪耀如星！",
+"愿你的未来充满希望与光芒！",
+"来财 来 来财 来",
+"愿你在新的一岁里实现所有梦想！",
+"生日快乐！愿你拥有最美好的回忆！",
+"小羊🐏生日快乐！"
+];
+const texts = lyrics.concat(wishes);
+
+function createPopup(text){
+    const div = document.createElement("div");
+    div.className = "popup";
+    div.style.left = `${Math.random() * (window.innerWidth - 240)}px`;
+    div.style.top = `${Math.random() * (window.innerHeight - 100)}px`;
+    div.innerHTML = text;
+    document.body.appendChild(div);
+    setTimeout(()=> div.classList.add("show"), 50);
+    const duration = 3000 + Math.random()*2000;
+    setTimeout(()=>{
+        div.classList.remove("show");
+        setTimeout(()=> div.remove(), 800);
+    }, duration);
+}
+function startPopups(){
+    let i = 0;
+    const interval = setInterval(()=>{
+        createPopup(texts[i % texts.length]);
+        i++;
+        if(i == texts.length) clearInterval(interval);
+    }, 800 + Math.random()*300);
+}
+
+const audio = document.getElementById("bgm");
+const cakeBtn = document.getElementById("cakeBtn");
+cakeBtn.addEventListener("click", ()=>{
+    audio.play();
+    cakeBtn.disabled = true;
+    startPopups();
+});
+
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resize(); addEventListener("resize", resize);
+
+let fireworks = [];
+let meteors = [];
+
+class Particle {
+    constructor(x,y,bright=false){
+        this.x = x;
+        this.y = y;
+        this.dx = (Math.random()-0.5)*(bright?8:3);
+        this.dy = (Math.random()-0.5)*(bright?8:3);
+        this.life = bright?80:50;
+        this.size = Math.random()*(bright?3:2)+1;
+        this.color = `hsl(${Math.random()*360},100%,${bright?70:60}%)`;
+    }
+    update(){
+        this.x += this.dx;
+        this.y += this.dy;
+        this.dy += 0.05;
+        this.life--;
+    }
+    draw(){
+        ctx.fillStyle = this.color.replace('hsl','hsla').replace(')',`,${this.life/80})`);
+        ctx.fillRect(this.x,this.y,this.size,this.size);
+    }
+}
+
+class Meteor {
+    constructor(){
+        this.x = Math.random()*canvas.width;
+        this.y = Math.random()* + canvas.height;
+        this.len = 10 + Math.random()*100;
+        this.speed = 4 + Math.random()*3;
+    }
+    update(){ this.y -= this.speed; }
+    draw(){
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(this.x,this.y);
+        ctx.lineTo(this.x,this.y + this.len);
+        ctx.stroke();
+    }
+}
+
+class Firework {
+    constructor(x,y){
+        this.particles = [];
+        for(let i=0;i<60;i++){
+            this.particles.push(new Particle(x,y,true));
+        }
+        this.completed = false;
+    }
+    update(){
+        this.particles.forEach(p=>p.update());
+        this.particles = this.particles.filter(p=>p.life>0);
+        if(this.particles.length===0) this.completed=true;
+    }
+    draw(){ this.particles.forEach(p=>p.draw()); }
+}
+
+window.addEventListener("click",(e)=>{
+    fireworks.push(new Firework(e.clientX,e.clientY));
+});
+
+function loop(){
+    requestAnimationFrame(loop);
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    if(Math.random()<0.03) meteors.push(new Meteor());
+    meteors.forEach(m=>{ m.update(); m.draw(); });
+    meteors = meteors.filter(m=>m.y < canvas.height + m.len);
+
+    fireworks.forEach(f=>{ f.update(); f.draw(); });
+    fireworks = fireworks.filter(f=>!f.completed);
+}
+loop();
+</script>
+</body>
+</html>
